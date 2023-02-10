@@ -26,5 +26,5 @@ model = CLIPWrapper()
 checkpoint = "epoch=1-step=4.ckpt"
 model.load_state_dict(torch.load(checkpoint)['state_dict'])
 
-model.forward(text=clip.tokenize(['description for paper']))[:10
+model.forward(text=clip.tokenize(['description for paper']))[:10]
 ```
