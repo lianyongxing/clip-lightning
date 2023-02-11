@@ -18,16 +18,11 @@ class CLIPWrapper(pl.LightningModule):
         self.loss_txt = nn.CrossEntropyLoss()
 
     def training_step(self, batch, idx):
-        optimizer = self.optimizers().optimizer
-
-        optimizer.zero_grad()
-
         images, texts = batch
         logits_per_image, logits_per_text = self.model(images, texts)
         ground_truth = torch.arange(len(images), dtype=torch.long)
         total_loss = (self.loss_img(logits_per_image, ground_truth) + self.loss_txt(logits_per_text, ground_truth)) / 2
-        total_loss.backward()
-        optimizer.step()
+        return total_loss
 
     def validation_step(self, batch, idx):
         images, texts = batch
@@ -39,7 +34,7 @@ class CLIPWrapper(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = optim.Adam(self.model.parameters(), lr=5e-5, betas=(0.9, 0.98), eps=1e-6,
                                weight_decay=0.2)  # Params used from paper, the lr is smaller, more safe for fine tuning to new dataset
-        return {'optimizer': optimizer}
+        return optimizer
 
     def forward(self, text=None, image=None):
         if (text is None) and (image is None):
